@@ -82,6 +82,24 @@ display_backup_status() {
 
 
 # `backup push [file-or-folder]'
+collect_single_ignore() {
+    backup="$1"
+    backup_base=`basename "$backup"`
+    while read ignore_path; do
+        relative_path=${ignore_path##"$backup/"}
+        relative_dir=`dirname "$relative_path"`
+        if [ "$relative_dir" == "." ]; then
+            cat "$ignore_path" | xargs -I '{}' echo "$backup_base/{}"
+        else
+            cat "$ignore_path" | xargs -I '{}' echo "$relative_dir/$backup_base/{}"
+        fi
+    done
+}
+
+collect_ignores() {
+    find "$1" -name ".backupignore" -type f | collect_single_ignore "$1" 
+}
+
 push_data() {
     if [ -z "$1" ]; then
         backups=(${BACKUP//$DELIMITER/ })
@@ -106,6 +124,11 @@ push_data() {
         [ -f "$backup_target/current" ] && rm -rf "$backup_target/current"
         [ -d "$backup_target/current" ] || mkdir "$backup_target/current"
 
+        # get backup ignore
+        backup_ignore="/tmp/backup_ignore_$$_$backup_hash.pig"
+        [ -e $backup_ignore ] && rm -rf $backup_ignore
+        collect_ignores "$backup" > $backup_ignore
+
         # rsync
         date=`date "+%Y-%m-%dT%H_%M_%S"`
         rsync \
@@ -115,8 +138,10 @@ push_data() {
             --delete \
             --progress \
             --link-dest="$backup_target/current" \
+            --exclude-from=$backup_ignore \
             "$backup" \
             "$backup_target/$date-incomplete/"
+        rm -rf $backup_ignore
 
         if [ $? -eq 0 ]; then
             # backup complete
