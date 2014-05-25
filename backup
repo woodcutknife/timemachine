@@ -9,28 +9,59 @@ fi
 source "$CONFIG_FILE"
 
 
+# check ssh connection
+if [ "$SSH" = "true" ]; then
+    ssh -q -q -o 'BatchMode=yes' -o 'ConnectTimeout 10' $SSH_USER@$SSH_HOST exit &> /dev/null
+    if [ ! $? -eq 0 ]; then
+        echo "ssh connect failed. it's supposed to connect passwordlessly."
+        exit 78
+    fi
+fi
+
+execute_command() {
+    if [ "$SSH" = "true" ]; then
+        ssh -q -q -o 'BatchMode=yes' -o 'ConnectTimeout 10' $SSH_USER@$SSH_HOST "$1" &> /dev/null 
+    else
+        eval "$1"
+    fi
+}
+
+execute_command_and_return() {
+    if [ "$SSH" = "true" ]; then
+        echo `ssh -q -q -o 'BatchMode=yes' -o 'ConnectTimeout 10' $SSH_USER@$SSH_HOST "$1"`
+    else
+        eval "$1"
+    fi
+}
+
+
 # check target
-if [ -z "$TARGET" ] || [ -f "$TARGET" ]; then
+execute_command "[ -z \"$TARGET\" ] || [ -f \"$TARGET\" ]"
+if [ $? -eq 0 ]; then
     echo "target not specified or is a original file. please check it."
     exit 78
 fi
-[ -d "$TARGET" ] || mkdir "$TARGET"
+execute_command "[ -d \"$TARGET\" ] || mkdir \"$TARGET\""
 if [ ! $? -eq 0 ]; then
     echo "cannot create target folder. maybe PERMISSION DENIED?"
     exit 78
+else
+    echo "\`$TARGET' checked."
 fi
 
 
 # check lock
-if [ -f "$TARGET/lockfile" ]; then
+execute_command "[ -f \"$TARGET/lockfile\" ]"
+if [ $? -eq 0 ]; then
     echo "lockfile exists. halt."
     exit 69
 else
     touch "$TARGET/lockfile"
+    echo "lockfile created."
 fi
 
 mexit() {
-    rm "$TARGET/lockfile"
+    execute_command "rm \"$TARGET/lockfile\""
     exit $1
 }
 
@@ -64,15 +95,16 @@ display_backup_status() {
 
         backup_hash=`echo -n $backup | md5sum | cut -d' ' -f1`
         backup_target="$TARGET/$backup_hash"
-        if [ -d "$backup_target" ]; then
-            backup_cnt=`find "$backup_target" -maxdepth 1 -mindepth 1 -type d | wc -l`
-            backup_current=`readlink "$backup_target/current"` 
+        execute_command "[ -d \"$backup_target\" ]"
+        if [ $? -eq 0 ]; then
+            backup_cnt=$(execute_command_and_return "find \"$backup_target\" -maxdepth 1 -mindepth 1 -type d | wc -l")
+            backup_current=$(execute_command_and_return "readlink \"$backup_target/current\"") 
 
             echo "===================================================="
             echo "BACKUP: $backup"
             echo "COUNT: $backup_cnt"
             echo "VERSIONS:"
-            find "$backup_target" -maxdepth 1 -mindepth 1 -type d | sort -r | print_status `basename "$backup_current"`
+            echo $(execute_command_and_return "find \"$backup_target\" -maxdepth 1 -mindepth 1 -type d | sort -r") | xargs -n 1 | print_status $(execute_command_and_return "basename \"$backup_current\"")
             echo "===================================================="
         else
             echo "$BASENAME: \`$backup' not in backup control."
@@ -119,10 +151,7 @@ push_data() {
         backup_target="$TARGET/$backup_hash"
 
         # create folders if necessary
-        [ -f "$backup_target" ] && rm -rf "$backup_target"
-        [ -d "$backup_target" ] || mkdir "$backup_target"
-        [ -f "$backup_target/current" ] && rm -rf "$backup_target/current"
-        [ -d "$backup_target/current" ] || mkdir "$backup_target/current"
+        execute_command "[ -f \"$backup_target\" ] && rm -rf \"$backup_target\" ; [ -d \"$backup_target\" ] || mkdir \"$backup_target\" ; [ -f \"$backup_target/current\" ] && rm -rf \"$backup_target/current\" ; [ -d \"$backup_target/current\" ] || mkdir \"$backup_target/current\""
 
         # get backup ignore
         backup_ignore="/tmp/backup_ignore_$$_$backup_hash.pig"
@@ -131,6 +160,10 @@ push_data() {
 
         # rsync
         date=`date "+%Y-%m-%dT%H_%M_%S"`
+        backup_des="$backup_target/$date-incomplete/"
+        if [ "$SSH" == "true" ]; then
+            backup_des="$SSH_USER@$SSH_HOST:$backup_des"
+        fi
         rsync \
             --archive \
             --xattrs \
@@ -140,21 +173,18 @@ push_data() {
             --link-dest="$backup_target/current" \
             --exclude-from=$backup_ignore \
             "$backup" \
-            "$backup_target/$date-incomplete/"
+            "$backup_des"
         rm -rf $backup_ignore
 
         if [ $? -eq 0 ]; then
             # backup complete
-            mv "$backup_target/$date-incomplete" "$backup_target/$date"
-            rm -rf "$backup_target/current"
-            ln -s "$backup_target/$date" "$backup_target/current"
-            touch "$backup_target/$date"
+            execute_command "mv \"$backup_target/$date-incomplete\" \"$backup_target/$date\" ; rm -rf \"$backup_target/current\" ; ln -s \"$backup_target/$date\" \"$backup_target/current\" ; touch \"$backup_target/$date\""
 
             # delte old backups
-            backup_cnt=`find "$backup_target" -maxdepth 1 -mindepth 1 -type d | wc -l`
+            backup_cnt=$(execute_command_and_return "find \"$backup_target\" -maxdepth 1 -mindepth 1 -type d | wc -l")
             if [ $backup_cnt -gt $BACKUP_UPPER_LIMIT ]; then
                 delete_cnt=$(($backup_cnt - $BACKUP_UPPER_LIMIT))
-                find "$backup_target" -maxdepth 1 -mindepth 1 -type d | sort | head -${delete_cnt} | xargs rm -rf
+                execute_command "find \"$backup_target\" -maxdepth 1 -mindepth 1 -type d | sort | head -${delete_cnt} | xargs rm -rf"
             fi
         else
             echo "$BASENAME: something error with rsync. :("
@@ -177,14 +207,16 @@ restore_data() {
     backup=`realpath "$1"`
     backup_hash=`echo -n $backup | md5sum | cut -d' ' -f1`
     backup_target="$TARGET/$backup_hash"
-    if [ ! -d "$backup_target" ]; then
+    execute_command "[ ! -d \"$backup_target\" ]"
+    if [ $? -eq 0 ]; then
         echo "$BASENAME: no backups found. :("
         mexit 66
     fi
 
     # find specified version
     version=$2
-    if [ ! -d "$backup_target/$version" ]; then
+    execute_command "[ ! -d \"$backup_target/$version\" ]"
+    if [ $? -eq 0 ]; then
         echo "$BASENAME: version \`$version' not found. :("
         mexit 66
     fi
@@ -192,10 +224,15 @@ restore_data() {
     # restore to local
     backup_base=`basename "$backup"`
     backup_dir=`dirname "$backup"`
-    if [ -f "$backup_target/$version/$backup_base" ]; then
+    execute_command "[ -f \"$backup_target/$version/$backup_base\" ]"
+    if [ $? -eq 0 ]; then
         if [ -d "$backup" ]; then
             echo "$BASENAME: folder and file with same name. please check you local files."
             mexit 74
+        fi
+        backup_src="$backup_target/$version/$backup_base"
+        if [ "$SSH" == "true" ]; then
+            backup_src="$SSH_USER@$SSH_HOST:$backup_src"
         fi
         rsync \
             --archive \
@@ -203,7 +240,7 @@ restore_data() {
             --human-readable \
             --delete \
             --progress \
-            "$backup_target/$version/$backup_base" \
+            "$backup_src" \
             "$backup"
         if [ ! $? -eq 0 ]; then
             echo "$BASENAME: something error with rsync. :("
@@ -216,6 +253,10 @@ restore_data() {
         fi
         [ -d "$backup" ] || mkdir "$backup"
         date=`date "+%Y-%m-%dT%H_%M_%S"`
+        backup_src="$backup_target/$version/$backup_base"
+        if [ "$SSH" == "true" ]; then
+            backup_src="$SSH_USER@$SSH_HOST:$backup_src"
+        fi
         rsync \
             --archive \
             --xattrs \
@@ -223,7 +264,7 @@ restore_data() {
             --delete \
             --progress \
             --link-dest="$backup_dir" \
-            "$backup_target/$version/$backup_base" \
+            "$backup_src" \
             "$backup_dir/$date-incomplete"
         if [ ! $? -eq 0 ]; then
             echo "$BASENAME: something error with rsync. :("
@@ -245,8 +286,7 @@ restore_data() {
     fi
 
     # set current
-    rm -rf "$backup_target/current"
-    ln -s "$backup_target/$version" "$backup_target/current"
+    execute_command "rm -rf \"$backup_target/current\" ; ln -s \"$backup_target/$version\" \"$backup_target/current\""
 }
 
 
