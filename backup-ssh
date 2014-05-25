@@ -93,7 +93,7 @@ display_backup_status() {
             echo "BACKUP: $backup"
             echo "COUNT: $backup_cnt"
             echo "VERSIONS:"
-            execute_command_on_ssh_and_return "find \"$backup_target\" -maxdepth 1 -mindepth 1 -type d | sort -r | print_status `basename \"$backup_current\"`"
+            echo $(execute_command_on_ssh_and_return "find \"$backup_target\" -maxdepth 1 -mindepth 1 -type d | sort -r") | xargs -n 1 | print_status $(execute_command_on_ssh_and_return "basename \"$backup_current\"")
             echo "===================================================="
         else
             echo "$BASENAME: \`$backup' not in backup control."
