@@ -1,3 +1,50 @@
 #!/bin/bash
 
-echo Hello World
+# settings
+CONFIG_FILE="backup.conf"
+[ -f "$CONFIG_FILE" ] && source "$CONFIG_FILE"
+
+# date for this backup
+date=`date "+%Y-%m-%dT%H_%M_%S"`
+
+# check and create lockfile
+if [ -f "${TARGET}lockfile" ]; then
+    echo "Lockfile exists, backup stopped."
+    exit 2
+else
+    touch "${TARGET}lockfile"
+fi
+
+# create folders if neccessary
+if [ ! -e "${TARGET}current" ]; then
+    mkdir "${TARGET}current"
+fi
+if [ ! -d "${TARGET}hourly" ]; then
+    mkdir "${TARGET}hourly"
+fi
+
+# rsync
+rsync \
+    --archive \
+    --xattrs \
+    --human-readable \
+    --delete \
+    --link-dest="${TARGET}current" \
+    "$BACKUP" \
+    "$TARGET$date-incomplete"
+
+# backup complete
+mv "$TARGET$date-incomplete" "${TARGET}hourly/$date"
+rm -r "${TARGET}current"
+ln -s "${TARGET}hourly/$date" "${TARGET}current"
+touch "${TARGET}hourly/$date"
+
+# delete old backups
+backup_cnt=`find "${TARGET}hourly" -maxdepth 1 -mindepth 1 -type d | wc -l`
+if [ $backup_cnt -gt $BACKUP_UPPER_LIMIT ]; then
+    delete_cnt=$(($backup_cnt - $BACKUP_UPPER_LIMIT))
+    find "${TARGET}hourly" -maxdepth 1 -mindepth 1 -type d | sort | head -${delete_cnt} | xargs rm -rf
+fi
+
+# remove lockfile
+rm "${TARGET}lockfile"
