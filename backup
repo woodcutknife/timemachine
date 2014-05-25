@@ -40,7 +40,7 @@ print_status() {
     while read path; do
         base=`basename "$path"`
         if [ "$1" = "$base" ]; then
-            echo "$base [*] <= current"
+            echo "$base [*] <= current (last sync)"
         else
             echo "$base"
         fi
@@ -138,6 +138,77 @@ push_data() {
 }
 
 
+# `backup restore file-or-folder version'
+restore_data() {
+    # find backup in backups
+    backup=`realpath "$1"`
+    backup_hash=`echo -n $backup | md5sum | cut -d' ' -f1`
+    backup_target="$TARGET/$backup_hash"
+    if [ ! -d "$backup_target" ]; then
+        echo "$BASENAME: no backups found. :("
+        mexit 66
+    fi
+
+    # find specified version
+    version=$2
+    if [ ! -d "$backup_target/$version" ]; then
+        echo "$BASENAME: version \`$version' not found. :("
+        mexit 66
+    fi
+
+    # restore to local
+    backup_base=`basename "$backup"`
+    backup_dir=`dirname "$backup"`
+    if [ -f "$backup_target/$version/$backup_base" ]; then
+        if [ -d "$backup" ]; then
+            echo "$BASENAME: folder and file with same name. please check you local files."
+            mexit 74
+        fi
+        rsync \
+            --archive \
+            --xattrs \
+            --human-readable \
+            --delete \
+            --progress \
+            "$backup_target/$version/$backup_base" \
+            "$backup"
+        if [ ! $? -eq 0 ]; then
+            echo "$BASENAME: something error with rsync. :("
+            mexit 71
+        fi
+    else
+        if [ -f "$backup" ]; then
+            echo "$BASENAME: folder and file with same name. please check you local files."
+            mexit 74
+        fi
+        [ -d "$backup" ] || mkdir "$backup"
+        date=`date "+%Y-%m-%dT%H_%M_%S"`
+        rsync \
+            --archive \
+            --xattrs \
+            --human-readable \
+            --delete \
+            --progress \
+            --link-dest="$backup_dir" \
+            "$backup_target/$version/$backup_base" \
+            "$backup_dir/$date-incomplete"
+        if [ ! $? -eq 0 ]; then
+            echo "$BASENAME: something error with rsync. :("
+            mexit 71
+        fi
+
+        # restore complete
+        rm -rf "$backup"
+        mv "$backup_dir/$date-incomplete/$backup_base" "$backup"
+        rm -rf "$backup_dir/$date-incomplete"
+    fi
+
+    # set current
+    rm -rf "$backup_target/current"
+    ln -s "$backup_target/$version" "$backup_target/current"
+}
+
+
 # handle parameters
 BASENAME=`basename $0`
 
@@ -166,6 +237,13 @@ print_push_usage() {
     echo "usage: $BASENAME push [file-or-folder]"
 }
 
+print_restore_usage() {
+    echo "restore the data from backup. you need to specify the data and the version you want to fallback."
+    echo "you can use \`$BASENAME status [file-or-folder]' to check available versions."
+    echo "usage: $BASENAME restore file-or-folder version"
+    echo "example: $BASENAME restore ./test.sh 2014-05-25T15_13_18"
+}
+
 if [ $# -lt 1 ]; then
     print_general_usage
     mexit 64
@@ -183,6 +261,8 @@ case $1 in
                     print_status_usage ; mexit 0 ;;
                 push)
                     print_push_usage ; mexit 0 ;;
+                restore)
+                    print_restore_usage ; mexit 0 ;;
             esac
         else
             print_help_usage ; mexit 64
@@ -192,10 +272,18 @@ case $1 in
         print_config_usage ;
         mexit 0 ;;
     status)
-        display_backup_status $2 ;
+        display_backup_status "$2" ;
         mexit 0 ;;
     push)
-        push_data $2 ;
+        push_data "$2" ;
+        mexit 0 ;;
+    restore)
+        if [ $# -lt 3 ]; then
+            print_restore_usage
+            mexit 64
+        else
+            restore_data "$2" $3
+        fi ;
         mexit 0 ;;
     *)
         print_general_usage; 
