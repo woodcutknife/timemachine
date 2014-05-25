@@ -6,7 +6,7 @@ if [ ! -e "$CONFIG_FILE" ]; then
     echo "config file not found. please check \`$CONFIG_FILE'."
     exit 78
 fi
-source $CONFIG_FILE
+source "$CONFIG_FILE"
 
 
 # check target
@@ -91,7 +91,7 @@ collect_single_ignore() {
         if [ "$relative_dir" == "." ]; then
             cat "$ignore_path" | xargs -I '{}' echo "$backup_base/{}"
         else
-            cat "$ignore_path" | xargs -I '{}' echo "$relative_dir/$backup_base/{}"
+            cat "$ignore_path" | xargs -I '{}' echo "$backup_base/$relative_dir/{}"
         fi
     done
 }
@@ -164,6 +164,14 @@ push_data() {
 
 
 # `backup restore file-or-folder version'
+trans_ignores() {
+    src="$1"
+    des="$2"
+    while read ignore_path; do
+        cp "$src/$ignore_path" "$des/$ignore_path" -r
+    done
+}
+
 restore_data() {
     # find backup in backups
     backup=`realpath "$1"`
@@ -221,6 +229,14 @@ restore_data() {
             echo "$BASENAME: something error with rsync. :("
             mexit 71
         fi
+
+        # deal with ignores
+        backup_incomplete="$backup_dir/$date-incomplete/$backup_base"
+        backup_ignore="/tmp/backup_ignore_$$_$backup_hash.pig"
+        [ -e $backup_ignore ] && rm -rf $backup_ignore
+        collect_ignores "$backup_incomplete" > $backup_ignore
+        cat $backup_ignore | trans_ignores "$backup_dir" "$backup_dir/$date-incomplete"
+        rm -rf $backup_ignore
 
         # restore complete
         rm -rf "$backup"
