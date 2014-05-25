@@ -1,68 +1,203 @@
 #!/bin/bash
 
-# settings
+# check config file
 CONFIG_FILE="backup.conf"
-[ -f "$CONFIG_FILE" ] && source "$CONFIG_FILE"
+if [ ! -e "$CONFIG_FILE" ]; then
+    echo "config file not found. please check \`$CONFIG_FILE'."
+    exit 78
+fi
+source $CONFIG_FILE
 
-# date for this backup
-date=`date "+%Y-%m-%dT%H_%M_%S"`
 
-# check and create lockfile
+# check target
+if [ -z "$TARGET" ] || [ -f "$TARGET" ]; then
+    echo "target not specified or is a original file. please check it."
+    exit 78
+fi
 [ -d "$TARGET" ] || mkdir "$TARGET"
+if [ ! $? -eq 0 ]; then
+    echo "cannot create target folder. maybe PERMISSION DENIED?"
+    exit 78
+fi
+
+
+# check lock
 if [ -f "$TARGET/lockfile" ]; then
-    echo "Lockfile exists, backup stopped."
-    exit 2
+    echo "lockfile exists. halt."
+    exit 69
 else
     touch "$TARGET/lockfile"
 fi
 
-# rsync
-backups=(${BACKUP//$DELIMITER/ })
-for backup in ${backups[@]}
-do
-    backup_hash=`echo -n $backup | md5sum | cut -d' ' -f1`
+mexit() {
+    rm "$TARGET/lockfile"
+    exit $1
+}
 
-    # create folders if necessary
-    [ -d "$TARGET/$backup_hash" ] || mkdir "$TARGET/$backup_hash"
-    [ -d "$TARGET/$backup_hash/current" ] || mkdir "$TARGET/$backup_hash/current"
 
-    rsync \
-        --archive \
-        --xattrs \
-        --human-readable \
-        --delete \
-        --progress \
-        --link-dest="$TARGET/$backup_hash/current" \
-        "$backup" \
-        "$TARGET/$backup_hash/$date-incomplete/"
+# `backup status [file-or-folder]'
+print_status() {
+    while read path; do
+        base=`basename "$path"`
+        if [ "$1" = "$base" ]; then
+            echo "$base [*] <= current"
+        else
+            echo "$base"
+        fi
+    done
+}
 
-    # backup complete
-    mv "$TARGET/$backup_hash/$date-incomplete" "$TARGET/$backup_hash/$date"
-    rm -r "$TARGET/$backup_hash/current"
-    ln -s "$TARGET/$backup_hash/$date" "$TARGET/$backup_hash/current"
-    touch "$TARGET/$backup_hash/$date"
-
-    # delete old backups
-    backup_cnt=`find "$TARGET/$backup_hash" -maxdepth 1 -mindepth 1 -type d | wc -l`
-    if [ $backup_cnt -gt $BACKUP_UPPER_LIMIT ]; then
-        delete_cnt=$(($backup_cnt - $BACKUP_UPPER_LIMIT))
-        find "$TARGET/$backup_hash" -maxdepth 1 -mindepth 1 -type d | sort | head -${delete_cnt} | xargs rm -rf
+display_backup_status() {
+    if [ -z "$1" ]; then
+        backups=(${BACKUP//$DELIMITER/ })
+    else
+        backups=(${1//$DELIMITER/ })
     fi
-done
 
-# show backup status
-for backup in ${backups[@]}
-do
-    backup_hash=`echo -n $backup | md5sum | cut -d' ' -f1`
-    backup_cnt=`find "$TARGET/$backup_hash" -maxdepth 1 -mindepth 1 -type d | wc -l`
+    for backup in ${backups[@]}; do
+        if [ -e $backup ]; then
+            backup=`realpath $backup`
+        else
+            echo "$BASENAME: \`$backup' not found."
+            continue
+        fi
 
-    echo "===================================================="
-    echo "BACKUP: $backup"
-    echo "COUNT: $backup_cnt"
-    echo "VERSIONS:"
-    find "$TARGET/$backup_hash" -maxdepth 1 -mindepth 1 -type d | sort -r | xargs -I '{}' basename '{}'
-    echo "===================================================="
-done
+        backup_hash=`echo -n $backup | md5sum | cut -d' ' -f1`
+        backup_target="$TARGET/$backup_hash"
+        if [ -d "$backup_target" ]; then
+            backup_cnt=`find "$backup_target" -maxdepth 1 -mindepth 1 -type d | wc -l`
+            backup_current=`readlink "$backup_target/current"` 
 
-# remove lockfile
-rm "$TARGET/lockfile"
+            echo "===================================================="
+            echo "BACKUP: $backup"
+            echo "COUNT: $backup_cnt"
+            echo "VERSIONS:"
+            find "$backup_target" -maxdepth 1 -mindepth 1 -type d | sort -r | print_status `basename "$backup_current"`
+            echo "===================================================="
+        else
+            echo "$BASENAME: \`$backup' not in backup control."
+        fi
+    done
+}
+
+
+# `backup push [file-or-folder]'
+push_data() {
+    if [ -z "$1" ]; then
+        backups=(${BACKUP//$DELIMITER/ })
+    else
+        backups=(${1//$DELIMITER/ })
+    fi
+
+    for backup in ${backups[@]}; do
+        if [ -e $backup ]; then
+            backup=`realpath $backup`
+        else
+            echo "$BASENAME: \`$backup' not found."
+            continue
+        fi
+
+        backup_hash="`echo -n $backup | md5sum | cut -d' ' -f1`"
+        backup_target="$TARGET/$backup_hash"
+
+        # create folders if necessary
+        [ -f "$backup_target" ] && rm -rf "$backup_target"
+        [ -d "$backup_target" ] || mkdir "$backup_target"
+        [ -f "$backup_target/current" ] && rm -rf "$backup_target/current"
+        [ -d "$backup_target/current" ] || mkdir "$backup_target/current"
+
+        # rsync
+        date=`date "+%Y-%m-%dT%H_%M_%S"`
+        rsync \
+            --archive \
+            --xattrs \
+            --human-readable \
+            --delete \
+            --progress \
+            --link-dest="$backup_target/current" \
+            "$backup" \
+            "$backup_target/$date-incomplete/"
+
+        if [ $? -eq 0 ]; then
+            # backup complete
+            mv "$backup_target/$date-incomplete" "$backup_target/$date"
+            rm -rf "$backup_target/current"
+            ln -s "$backup_target/$date" "$backup_target/current"
+            touch "$backup_target/$date"
+
+            # delte old backups
+            backup_cnt=`find "$backup_target" -maxdepth 1 -mindepth 1 -type d | wc -l`
+            if [ $backup_cnt -gt $BACKUP_UPPER_LIMIT ]; then
+                delete_cnt=$(($backup_cnt - $BACKUP_UPPER_LIMIT))
+                find "$backup_target" -maxdepth 1 -mindepth 1 -type d | sort | head -${delete_cnt} | xargs rm -rf
+            fi
+        else
+            echo "$BASENAME: something error with rsync. :("
+        fi
+    done
+}
+
+
+# handle parameters
+BASENAME=`basename $0`
+
+print_general_usage() {
+    echo "$BASENAME is a file backup tool under linux."
+    echo "usage: $BASENAME {config,status,push,restore,help}"
+}
+
+print_help_usage() {
+    echo "$BASENAME covers some basic functions. to learn about \`func', just enter \`$BASENAME help func'."
+    echo "usage: $BASENAME help {config,status,push,restore,help}"
+}
+
+print_config_usage() {
+    echo "all the settings of $BASENAME is located in \`$CONFIG_FILE'."
+    echo "check this file for more details."
+}
+
+print_status_usage() {
+    echo "display the status of your backup. if nothing is specified, $BASENAME will display all data specified in config file."
+    echo "usage: $BASENAME status [file-or-folder]"
+}
+
+print_push_usage() {
+    echo "push the data to be backuped. if nothing is specified, $BASENAME will push all data specified in config file."
+    echo "usage: $BASENAME push [file-or-folder]"
+}
+
+if [ $# -lt 1 ]; then
+    print_general_usage
+    mexit 64
+fi
+
+case $1 in
+    help) 
+        if [ $# -gt 1 ]; then
+            case $2 in
+                help) 
+                    print_help_usage ; mexit 0 ;;
+                config) 
+                    print_config_usage ; mexit 0 ;;
+                status)
+                    print_status_usage ; mexit 0 ;;
+                push)
+                    print_push_usage ; mexit 0 ;;
+            esac
+        else
+            print_help_usage ; mexit 64
+        fi ;
+        mexit 0 ;;
+    config)
+        print_config_usage ;
+        mexit 0 ;;
+    status)
+        display_backup_status $2 ;
+        mexit 0 ;;
+    push)
+        push_data $2 ;
+        mexit 0 ;;
+    *)
+        print_general_usage; 
+        mexit 64 ;;
+esac
