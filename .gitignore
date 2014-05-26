@@ -7,6 +7,7 @@ doc/readme.lg
 doc/readme.log
 doc/readme.tmp
 doc/readme.xref
+doc/*.log
 
 *.m4
 autom4te.cache/

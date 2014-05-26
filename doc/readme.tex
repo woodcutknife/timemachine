@@ -108,6 +108,16 @@ This command is used to backup data(push them!). \\
 \\
 Just like the {\large\tt status} command, if a file of a folder name is specified, \textbf{backup} will push this file or folder to your backups. If not, \textbf{backup} will push all the files and folders specified in config file.
 
+\subsubsection{{\large\tt .backupignore}}
+Just like {\large\tt .gitignore}, \textbf{backup} support user-defined {\large\tt .backupignore} files. \\
+Wherever you want to ignore something, just put the \textbf{relative} path in a file named {\large\tt .backupignore}. \\
+\\
+For example, now you're at a folder named {\large\tt test}, and you want to ignore {\large\tt test/file-to-ignore, just create {\large\tt .backupignore} in this folder, add: \\
+\\
+{\tt
+    file-to-ignore \\
+}
+
 \subsection{{\large\tt backup restore}}
 This command is used to restore data to a version of the data. \\
 \\

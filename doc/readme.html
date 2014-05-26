@@ -7,7 +7,7 @@
 <meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)"> 
 <!-- html --> 
 <meta name="src" content="readme.tex"> 
-<meta name="date" content="2014-05-26 11:41:00"> 
+<meta name="date" content="2014-05-26 12:39:00"> 
 <link rel="stylesheet" type="text/css" href="readme.css"> 
 </head><body 
 >
@@ -76,14 +76,17 @@ class="cmtt-10">backup status</span></a></span>
 <br />   &#x00A0;<span class="subsectionToc" >4.3 <a 
 href="#x1-170004.3" id="QQ2-1-17"><span 
 class="cmtt-10">backup push</span></a></span>
+<br />   &#x00A0;&#x00A0;<span class="subsubsectionToc" >4.3.1 <a 
+href="#x1-180004.3.1" id="QQ2-1-18"><span 
+class="cmtt-10">.backupignore</span></a></span>
 <br />   &#x00A0;<span class="subsectionToc" >4.4 <a 
-href="#x1-180004.4" id="QQ2-1-18"><span 
+href="#x1-190004.4" id="QQ2-1-19"><span 
 class="cmtt-10">backup restore</span></a></span>
 <br />   &#x00A0;<span class="subsectionToc" >4.5 <a 
-href="#x1-190004.5" id="QQ2-1-19"><span 
+href="#x1-200004.5" id="QQ2-1-20"><span 
 class="cmtt-10">backup daily</span></a></span>
 <br />   &#x00A0;<span class="subsectionToc" >4.6 <a 
-href="#x1-200004.6" id="QQ2-1-20"><span 
+href="#x1-210004.6" id="QQ2-1-21"><span 
 class="cmtt-10">backup help</span></a></span>
    </div>
 <!--l. 14--><p class="noindent" >
@@ -261,45 +264,79 @@ class="cmbx-10">backup </span>will push all the files and
 folders specified in config file.
 
 <!--l. 111--><p class="noindent" >
-   <h4 class="subsectionHead"><span class="titlemark">4.4   </span> <a 
- id="x1-180004.4"></a><span 
-class="cmtt-12">backup restore</span></h4>
-<!--l. 112--><p class="noindent" >This command is used to restore data to a version of the data. <br 
-class="newline" /><br 
-class="newline" /><span 
-class="cmtt-10">backup restore file-or-folder version  </span><br 
-class="newline" /><br 
-class="newline" />There is an example: <br 
-class="newline" /><br 
-class="newline" /><span 
-class="cmtt-10">backup restore ./test.sh 2014-05-25T15</span><span 
-class="cmtt-10">_13</span><span 
-class="cmtt-10">_18</span>
-<!--l. 124--><p class="noindent" >
-   <h4 class="subsectionHead"><span class="titlemark">4.5   </span> <a 
- id="x1-190004.5"></a><span 
-class="cmtt-12">backup daily</span></h4>
-<!--l. 125--><p class="noindent" >This command is used to start or stop daily backup. The backup time is configured
-in the config file. <br 
-class="newline" /><br 
-class="newline" /><span 
-class="cmtt-10">backup daily </span><span 
-class="cmsy-10">{</span><span 
-class="cmtt-10">start,stop</span><span 
-class="cmsy-10">}</span>
-<!--l. 131--><p class="noindent" >
-   <h4 class="subsectionHead"><span class="titlemark">4.6   </span> <a 
- id="x1-200004.6"></a><span 
-class="cmtt-12">backup help</span></h4>
-<!--l. 132--><p class="noindent" >This command tells you how to use <span 
-class="cmbx-10">backup</span>, though it&#8217;s a little bit ugly.
+   <h5 class="subsubsectionHead"><span class="titlemark">4.3.1   </span> <a 
+ id="x1-180004.3.1"></a><span 
+class="cmtt-12">.backupignore</span></h5>
+<!--l. 112--><p class="noindent" >Just like <span 
+class="cmtt-12">.gitignore</span>, <span 
+class="cmbx-10">backup </span>support user-defined <span 
+class="cmtt-12">.backupignore </span>files.
 <br 
+class="newline" />Wherever you want to ignore something, just put the <span 
+class="cmbx-10">relative </span>path in a file named
+<span 
+class="cmtt-12">.backupignore</span>. <br 
+class="newline" /><br 
+class="newline" />For example, now you&#8217;re at a folder named <span 
+class="cmtt-12">test</span>, and you want to ignore
+<span 
+class="cmtt-12">test/file-to-ignore, just create .backupignore in this</span>
+<span 
+class="cmtt-12">folder, add: </span><br 
 class="newline" /><br 
 class="newline" /><span 
-class="cmtt-10">backup help </span><span 
-class="cmsy-10">{</span><span 
-class="cmtt-10">config,status,push,restore,daily,help</span><span 
-class="cmsy-10">}</span>
+class="cmtt-12">file-to-ignore </span><br 
+class="newline" />
+<!--l. 121--><p class="noindent" >
+   <h4 class="subsectionHead"><span class="titlemark"><span 
+class="cmtt-12">4.4  </span></span> <a 
+ id="x1-190004.4"></a><span 
+class="cmtt-12">backup restore</span></h4>
+<!--l. 122--><p class="noindent" ><span 
+class="cmtt-12">This command is used to restore data to a version of the</span>
+<span 
+class="cmtt-12">data. </span><br 
+class="newline" /><br 
+class="newline" /><span 
+class="cmtt-12">backup restore file-or-folder version  </span><br 
+class="newline" /><br 
+class="newline" /><span 
+class="cmtt-12">There is an example: </span><br 
+class="newline" /><br 
+class="newline" /><span 
+class="cmtt-12">backup restore ./test.sh 2014-05-25T15</span><span 
+class="cmtt-12">_13</span><span 
+class="cmtt-12">_18</span>
+<!--l. 134--><p class="noindent" >
+   <h4 class="subsectionHead"><span class="titlemark"><span 
+class="cmtt-12">4.5  </span></span> <a 
+ id="x1-200004.5"></a><span 
+class="cmtt-12">backup daily</span></h4>
+<!--l. 135--><p class="noindent" ><span 
+class="cmtt-12">This command is used to start or stop daily backup. The</span>
+<span 
+class="cmtt-12">backup time is configured in the config file. </span><br 
+class="newline" /><br 
+class="newline" /><span 
+class="cmtt-12">backup daily </span><span 
+class="cmsy-10x-x-120">{</span><span 
+class="cmtt-12">start,stop</span><span 
+class="cmsy-10x-x-120">}</span>
+<!--l. 141--><p class="noindent" >
+   <h4 class="subsectionHead"><span class="titlemark"><span 
+class="cmtt-12">4.6  </span></span> <a 
+ id="x1-210004.6"></a><span 
+class="cmtt-12">backup help</span></h4>
+<!--l. 142--><p class="noindent" ><span 
+class="cmtt-12">This command tells you how to use backup, though it&#8217;s a</span>
+<span 
+class="cmtt-12">little bit ugly. </span><br 
+class="newline" /><br 
+class="newline" /><span 
+class="cmtt-12">backup help </span><span 
+class="cmsy-10x-x-120">{</span><span 
+class="cmtt-12">config,status,push,restore,daily,help</span><span 
+class="cmsy-10x-x-120">}</span>
     
 </body></html> 
 
