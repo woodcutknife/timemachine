@@ -303,7 +303,7 @@ set_daily() {
             echo "started." ;;
         stop)
             cron="/tmp/daily-cron-$$.pig" ;
-            crontab -l | grep -v "`pwd`/$BASENAME" > $cron ;
+            crontab -l | grep -v "`realpath \"$0\"`" > $cron ;
             crontab $cron ;
             rm -rf $cron ;
             echo "stopped." ;;
