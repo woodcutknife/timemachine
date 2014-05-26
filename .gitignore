@@ -7,3 +7,13 @@ doc/readme.lg
 doc/readme.log
 doc/readme.tmp
 doc/readme.xref
+
+aclocal.m4     
+*.log     
+configure     
+missing
+*.cache  
+*.status
+install-sh  
+Makefile  
+Makefile.in
