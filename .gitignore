@@ -1,0 +1,9 @@
+doc/*.4ct
+doc/*.4tc  
+doc/*.aux  
+doc/*.dvi  
+doc/*.idv  
+doc/*.lg  
+doc/*.log  
+doc/*.tmp  
+doc/*.xref
