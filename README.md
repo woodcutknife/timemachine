@@ -1,4 +1,4 @@
 timemachine
 ===========
 
-a linux file backup tool
+a file backup tool under Linux
