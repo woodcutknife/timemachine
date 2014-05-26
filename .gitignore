@@ -8,12 +8,12 @@ doc/readme.log
 doc/readme.tmp
 doc/readme.xref
 
-aclocal.m4     
-*.log     
-configure     
-missing
-*.cache  
-*.status
-install-sh  
-Makefile  
+*.m4
+autom4te.cache/
+configure
 Makefile.in
+install-sh
+missing
+Makefile
+config.log
+config.status
