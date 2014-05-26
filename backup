@@ -1,22 +1,12 @@
 #!/bin/bash
 
 # check config file
-CONFIG_FILE="/home/wayne/workspace/timemachine/backup.conf"
+CONFIG_FILE="/usr/local/etc/backup.conf"
 if [ ! -e "$CONFIG_FILE" ]; then
     echo "config file not found. please check \`$CONFIG_FILE'."
     exit 78
 fi
 source "$CONFIG_FILE"
-
-
-# check ssh connection
-if [ "$SSH" = "true" ]; then
-    ssh -q -q -o 'BatchMode=yes' -o 'ConnectTimeout 10' $SSH_USER@$SSH_HOST exit &> /dev/null
-    if [ ! $? -eq 0 ]; then
-        echo "ssh connect failed. it's supposed to connect passwordlessly."
-        exit 78
-    fi
-fi
 
 execute_command() {
     if [ "$SSH" = "true" ]; then
@@ -35,33 +25,44 @@ execute_command_and_return() {
 }
 
 
-# check target
-execute_command "[ -z \"$TARGET\" ] || [ -f \"$TARGET\" ]"
-if [ $? -eq 0 ]; then
-    echo "target not specified or is a original file. please check it."
-    exit 78
-fi
-execute_command "[ -d \"$TARGET\" ] || mkdir \"$TARGET\""
-if [ ! $? -eq 0 ]; then
-    echo "cannot create target folder. maybe PERMISSION DENIED?"
-    exit 78
-else
-    echo "\`$TARGET' checked."
-fi
+# env check
+check_env() {
+    # check ssh connection
+    if [ "$SSH" = "true" ]; then
+        ssh -q -q -o 'BatchMode=yes' -o 'ConnectTimeout 10' $SSH_USER@$SSH_HOST exit &> /dev/null
+        if [ ! $? -eq 0 ]; then
+            echo "ssh connect failed. it's supposed to connect passwordlessly."
+            exit 78
+        fi
+    fi
 
+    # check target
+    execute_command "[ -z \"$TARGET\" ] || [ -f \"$TARGET\" ]"
+    if [ $? -eq 0 ]; then
+        echo "target not specified or is a original file. please check it."
+        exit 78
+    fi
+    execute_command "[ -d \"$TARGET\" ] || mkdir \"$TARGET\""
+    if [ ! $? -eq 0 ]; then
+        echo "cannot create target folder. maybe PERMISSION DENIED?"
+        exit 78
+    else
+        echo "\`$TARGET' checked."
+    fi
 
-# check lock
-execute_command "[ -f \"$TARGET/lockfile\" ]"
-if [ $? -eq 0 ]; then
-    echo "lockfile exists. halt."
-    exit 69
-else
-    touch "$TARGET/lockfile"
-    echo "lockfile created."
-fi
+    # check lock
+    execute_command "[ -f \"$TARGET/lockfile\" ]"
+    if [ $? -eq 0 ]; then
+        echo "lockfile exists. halt."
+        exit 69
+    else
+        touch "$TARGET/lockfile"
+        echo "lockfile created."
+    fi
+}
 
 mexit() {
-    execute_command "rm \"$TARGET/lockfile\""
+    execute_command "[ -e \"$TARGET/lockfile\" ] && rm -rf \"$TARGET/lockfile\""
     exit $1
 }
 
@@ -383,12 +384,15 @@ case $1 in
         print_config_usage ;
         mexit 0 ;;
     status)
+        check_env ;
         display_backup_status "$2" ;
         mexit 0 ;;
     push)
+        check_env ;
         push_data "$2" ;
         mexit 0 ;;
     restore)
+        check_env ;
         if [ $# -lt 3 ]; then
             print_restore_usage
             mexit 64
