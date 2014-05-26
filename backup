@@ -290,17 +290,40 @@ restore_data() {
 }
 
 
+# `backup daily {start,stop}'
+set_daily() {
+    case $1 in
+        start)
+            cron="/tmp/daily-cron-$$.pig" ;
+            crontab -l > $cron ;
+            echo "$DAILY_BACKUP_MINUTE $DAILY_BACKUP_HOUR * * * \"`pwd`/$BASENAME\" push" >> $cron ;
+            crontab $cron ;
+            rm -rf $cron ;
+            echo "started." ;;
+        stop)
+            cron="/tmp/daily-cron-$$.pig" ;
+            crontab -l | grep -v "`pwd`/$BASENAME" > $cron ;
+            crontab $cron ;
+            rm -rf $cron ;
+            echo "stopped." ;;
+        *)
+            echo "$BASENAME: \`$1' can not identify." ;
+            mexit 64 ;;
+    esac
+}
+
+
 # handle parameters
 BASENAME=`basename $0`
 
 print_general_usage() {
     echo "$BASENAME is a file backup tool under linux."
-    echo "usage: $BASENAME {config,status,push,restore,help}"
+    echo "usage: $BASENAME {config,status,push,restore,daily,help}"
 }
 
 print_help_usage() {
     echo "$BASENAME covers some basic functions. to learn about \`func', just enter \`$BASENAME help func'."
-    echo "usage: $BASENAME help {config,status,push,restore,help}"
+    echo "usage: $BASENAME help {config,status,push,restore,daily,help}"
 }
 
 print_config_usage() {
@@ -325,6 +348,11 @@ print_restore_usage() {
     echo "example: $BASENAME restore ./test.sh 2014-05-25T15_13_18"
 }
 
+print_daily_usage() {
+    echo "set daily backup. backup path and backup time should be specified in config file."
+    echo "usage: $BASENAME daily {start,stop}"
+}
+
 if [ $# -lt 1 ]; then
     print_general_usage
     mexit 64
@@ -344,6 +372,8 @@ case $1 in
                     print_push_usage ; mexit 0 ;;
                 restore)
                     print_restore_usage ; mexit 0 ;;
+                daily)
+                    print_daily_usage ; mexit 0 ;;
             esac
         else
             print_help_usage ; mexit 64
@@ -364,6 +394,14 @@ case $1 in
             mexit 64
         else
             restore_data "$2" $3
+        fi ;
+        mexit 0 ;;
+    daily)
+        if [ $# -lt 2 ]; then
+            print_daily_usage
+            mexit 64
+        else
+            set_daily $2
         fi ;
         mexit 0 ;;
     *)
