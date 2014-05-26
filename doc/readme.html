@@ -1,0 +1,271 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"  
+  "http://www.w3.org/TR/html4/loose.dtd">  
+<html > 
+<head><title>linux time machine</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)"> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)"> 
+<!-- html --> 
+<meta name="src" content="readme.tex"> 
+<meta name="date" content="2014-05-26 10:17:00"> 
+<link rel="stylesheet" type="text/css" href="readme.css"> 
+</head><body 
+>
+   <div class="maketitle">
+
+
+
+<h2 class="titleHead">linux time machine</h2>
+<div class="author" ><span 
+class="cmr-12">Di Wang</span></div><br />
+<div class="date" ><span 
+class="cmr-12">May 26, 2014</span></div>
+   </div>
+   <h3 class="likesectionHead"><a 
+ id="x1-1000"></a>Contents</h3>
+   <div class="tableofcontents">
+   <span class="sectionToc" >1 <a 
+href="#x1-20001" id="QQ2-1-2">Introduction</a></span>
+<br />   <span class="sectionToc" >2 <a 
+href="#x1-30002" id="QQ2-1-3">Installation</a></span>
+<br />   <span class="sectionToc" >3 <a 
+href="#x1-40003" id="QQ2-1-4">Configuration</a></span>
+<br />   &#x00A0;<span class="subsectionToc" >3.1 <a 
+href="#x1-50003.1" id="QQ2-1-5"><span 
+class="cmtt-10">BACKUP</span></a></span>
+<br />   &#x00A0;<span class="subsectionToc" >3.2 <a 
+href="#x1-60003.2" id="QQ2-1-6"><span 
+class="cmtt-10">DELIMITER</span></a></span>
+<br />   &#x00A0;<span class="subsectionToc" >3.3 <a 
+href="#x1-70003.3" id="QQ2-1-7"><span 
+class="cmtt-10">TARGET</span></a></span>
+<br />   &#x00A0;<span class="subsectionToc" >3.4 <a 
+href="#x1-80003.4" id="QQ2-1-8"><span 
+class="cmtt-10">BACKUP</span><span 
+class="cmtt-10">_UPPER</span><span 
+class="cmtt-10">_LIMIT</span></a></span>
+<br />   &#x00A0;<span class="subsectionToc" >3.5 <a 
+href="#x1-90003.5" id="QQ2-1-9"><span 
+class="cmtt-10">SSH</span></a></span>
+<br />   &#x00A0;<span class="subsectionToc" >3.6 <a 
+href="#x1-100003.6" id="QQ2-1-10"><span 
+class="cmtt-10">SSH</span><span 
+class="cmtt-10">_USER</span></a></span>
+<br />   &#x00A0;<span class="subsectionToc" >3.7 <a 
+href="#x1-110003.7" id="QQ2-1-11"><span 
+class="cmtt-10">SSH</span><span 
+class="cmtt-10">_HOST</span></a></span>
+<br />   &#x00A0;<span class="subsectionToc" >3.8 <a 
+href="#x1-120003.8" id="QQ2-1-12"><span 
+class="cmtt-10">DAILY</span><span 
+class="cmtt-10">_BACKUP</span><span 
+class="cmtt-10">_HOUR</span></a></span>
+<br />   &#x00A0;<span class="subsectionToc" >3.9 <a 
+href="#x1-130003.9" id="QQ2-1-13"><span 
+class="cmtt-10">DAILY</span><span 
+class="cmtt-10">_BACKUP</span><span 
+class="cmtt-10">_MINUTE</span></a></span>
+<br />   <span class="sectionToc" >4 <a 
+href="#x1-140004" id="QQ2-1-14">Usage</a></span>
+<br />   &#x00A0;<span class="subsectionToc" >4.1 <a 
+href="#x1-150004.1" id="QQ2-1-15"><span 
+class="cmtt-10">backup config</span></a></span>
+<br />   &#x00A0;<span class="subsectionToc" >4.2 <a 
+href="#x1-160004.2" id="QQ2-1-16"><span 
+class="cmtt-10">backup status</span></a></span>
+<br />   &#x00A0;<span class="subsectionToc" >4.3 <a 
+href="#x1-170004.3" id="QQ2-1-17"><span 
+class="cmtt-10">backup push</span></a></span>
+<br />   &#x00A0;<span class="subsectionToc" >4.4 <a 
+href="#x1-180004.4" id="QQ2-1-18"><span 
+class="cmtt-10">backup restore</span></a></span>
+<br />   &#x00A0;<span class="subsectionToc" >4.5 <a 
+href="#x1-190004.5" id="QQ2-1-19"><span 
+class="cmtt-10">backup daily</span></a></span>
+<br />   &#x00A0;<span class="subsectionToc" >4.6 <a 
+href="#x1-200004.6" id="QQ2-1-20"><span 
+class="cmtt-10">backup help</span></a></span>
+   </div>
+<!--l. 14--><p class="noindent" >
+   <h3 class="sectionHead"><span class="titlemark">1   </span> <a 
+ id="x1-20001"></a>Introduction</h3>
+<!--l. 15--><p class="noindent" ><span 
+class="cmbx-10">backup </span>is a file backup tool under Linux, it can be used to backup and restore data
+locally or remotely. It has those features:
+
+     <ul class="itemize1">
+     <li class="itemize">Incremental backup.
+     </li>
+     <li class="itemize">Configuration with a tiny file.
+     </li>
+     <li class="itemize">Easy to set excluded files and folders.
+     </li>
+     <li class="itemize">Pretty display of backup status.
+     </li>
+     <li class="itemize">Can limit the number of backup versions.
+     </li>
+     <li class="itemize">Can restore data to a specified version.
+     </li>
+     <li class="itemize">Remote backup support - use SSH.</li></ul>
+<!--l. 26--><p class="noindent" >
+   <h3 class="sectionHead"><span class="titlemark">2   </span> <a 
+ id="x1-30002"></a>Installation</h3>
+<!--l. 28--><p class="noindent" >
+   <h3 class="sectionHead"><span class="titlemark">3   </span> <a 
+ id="x1-40003"></a>Configuration</h3>
+<!--l. 29--><p class="noindent" >The config file is defaultly located at <span 
+class="cmtt-12">/usr/local/etc/backup.conf</span>, but you
+can modify this in <span 
+class="cmtt-12">/usr/local/bin/backup </span>as you want.
+<!--l. 31--><p class="noindent" >
+   <h4 class="subsectionHead"><span class="titlemark">3.1   </span> <a 
+ id="x1-50003.1"></a><span 
+class="cmtt-12">BACKUP</span></h4>
+<!--l. 32--><p class="noindent" >To specify globally what files and folders you want to backup. Remember to insert a
+<span 
+class="cmtt-12">DELIMITER </span>between two path.
+<!--l. 34--><p class="noindent" >
+   <h4 class="subsectionHead"><span class="titlemark">3.2   </span> <a 
+ id="x1-60003.2"></a><span 
+class="cmtt-12">DELIMITER</span></h4>
+<!--l. 35--><p class="noindent" >To split <span 
+class="cmtt-12">BACKUP</span>.
+<!--l. 37--><p class="noindent" >
+   <h4 class="subsectionHead"><span class="titlemark">3.3   </span> <a 
+ id="x1-70003.3"></a><span 
+class="cmtt-12">TARGET</span></h4>
+<!--l. 38--><p class="noindent" >To specify where to place your backups. It could be a path on your remote
+server.
+
+<!--l. 40--><p class="noindent" >
+   <h4 class="subsectionHead"><span class="titlemark">3.4   </span> <a 
+ id="x1-80003.4"></a><span 
+class="cmtt-12">BACKUP</span><span 
+class="cmtt-12">_UPPER</span><span 
+class="cmtt-12">_LIMIT</span></h4>
+<!--l. 41--><p class="noindent" >To configure the upper limit of the number of versions <span 
+class="cmbx-10">backup </span>should save.
+<!--l. 43--><p class="noindent" >
+   <h4 class="subsectionHead"><span class="titlemark">3.5   </span> <a 
+ id="x1-90003.5"></a><span 
+class="cmtt-12">SSH</span></h4>
+<!--l. 44--><p class="noindent" >To switch mode from backup locally and backup remotely. <span 
+class="cmbx-10">Remember that if you</span>
+<span 
+class="cmbx-10">want to use ssh, it&#8217;s supposed to connect passwordlessly</span>.
+<!--l. 46--><p class="noindent" >
+   <h4 class="subsectionHead"><span class="titlemark">3.6   </span> <a 
+ id="x1-100003.6"></a><span 
+class="cmtt-12">SSH</span><span 
+class="cmtt-12">_USER</span></h4>
+<!--l. 47--><p class="noindent" >To specify the ssh user name.
+<!--l. 49--><p class="noindent" >
+   <h4 class="subsectionHead"><span class="titlemark">3.7   </span> <a 
+ id="x1-110003.7"></a><span 
+class="cmtt-12">SSH</span><span 
+class="cmtt-12">_HOST</span></h4>
+<!--l. 50--><p class="noindent" >To specify the ssh host name(or ip).
+<!--l. 52--><p class="noindent" >
+   <h4 class="subsectionHead"><span class="titlemark">3.8   </span> <a 
+ id="x1-120003.8"></a><span 
+class="cmtt-12">DAILY</span><span 
+class="cmtt-12">_BACKUP</span><span 
+class="cmtt-12">_HOUR</span></h4>
+<!--l. 53--><p class="noindent" >To specify the hour of daily backup time.
+<!--l. 55--><p class="noindent" >
+   <h4 class="subsectionHead"><span class="titlemark">3.9   </span> <a 
+ id="x1-130003.9"></a><span 
+class="cmtt-12">DAILY</span><span 
+class="cmtt-12">_BACKUP</span><span 
+class="cmtt-12">_MINUTE</span></h4>
+<!--l. 56--><p class="noindent" >To specify the minute of daily backup time.
+<!--l. 58--><p class="noindent" >
+   <h3 class="sectionHead"><span class="titlemark">4   </span> <a 
+ id="x1-140004"></a>Usage</h3>
+<!--l. 59--><p class="noindent" >The general command line usage is: <br 
+class="newline" /><br 
+class="newline" /><span 
+class="cmtt-10">backup </span><span 
+class="cmsy-10">{</span><span 
+class="cmtt-10">config,status,push,restore,daily,help</span><span 
+class="cmsy-10">}</span>
+<!--l. 65--><p class="noindent" >
+   <h4 class="subsectionHead"><span class="titlemark">4.1   </span> <a 
+ id="x1-150004.1"></a><span 
+class="cmtt-12">backup config</span></h4>
+<!--l. 66--><p class="noindent" >This command simply tells where the config file locates.
+
+<!--l. 68--><p class="noindent" >
+   <h4 class="subsectionHead"><span class="titlemark">4.2   </span> <a 
+ id="x1-160004.2"></a><span 
+class="cmtt-12">backup status</span></h4>
+<!--l. 69--><p class="noindent" >This command is used to check backup status. <br 
+class="newline" /><br 
+class="newline" /><span 
+class="cmtt-10">backup status [file-or-folder]  </span><br 
+class="newline" /><br 
+class="newline" />If a file or a folder name is specified, <span 
+class="cmbx-10">backup </span>will check the backup for this file or
+folder to find all available versions. If not, <span 
+class="cmbx-10">backup </span>will check status of all the files
+and folders specified in config file.
+<!--l. 77--><p class="noindent" >
+   <h4 class="subsectionHead"><span class="titlemark">4.3   </span> <a 
+ id="x1-170004.3"></a><span 
+class="cmtt-12">backup push</span></h4>
+<!--l. 78--><p class="noindent" >This command is used to backup data(push them!). <br 
+class="newline" /><br 
+class="newline" /><span 
+class="cmtt-10">backup push [file-or-folder]  </span><br 
+class="newline" /><br 
+class="newline" />Just like the <span 
+class="cmtt-12">status </span>command, if a file of a folder name is specified, <span 
+class="cmbx-10">backup </span>will
+push this file or folder to your backups. If not, <span 
+class="cmbx-10">backup </span>will push all the files and
+folders specified in config file.
+<!--l. 86--><p class="noindent" >
+   <h4 class="subsectionHead"><span class="titlemark">4.4   </span> <a 
+ id="x1-180004.4"></a><span 
+class="cmtt-12">backup restore</span></h4>
+<!--l. 87--><p class="noindent" >This command is used to restore data to a version of the data. <br 
+class="newline" /><br 
+class="newline" /><span 
+class="cmtt-10">backup restore file-or-folder version  </span><br 
+class="newline" /><br 
+class="newline" />There is an example: <br 
+class="newline" /><br 
+class="newline" /><span 
+class="cmtt-10">backup restore ./test.sh 2014-05-25T15</span><span 
+class="cmtt-10">_13</span><span 
+class="cmtt-10">_18</span>
+<!--l. 99--><p class="noindent" >
+   <h4 class="subsectionHead"><span class="titlemark">4.5   </span> <a 
+ id="x1-190004.5"></a><span 
+class="cmtt-12">backup daily</span></h4>
+<!--l. 100--><p class="noindent" >This command is used to start or stop daily backup. The backup time is configured
+in the config file. <br 
+class="newline" /><br 
+class="newline" /><span 
+class="cmtt-10">backup daily </span><span 
+class="cmsy-10">{</span><span 
+class="cmtt-10">start,stop</span><span 
+class="cmsy-10">}</span>
+<!--l. 106--><p class="noindent" >
+   <h4 class="subsectionHead"><span class="titlemark">4.6   </span> <a 
+ id="x1-200004.6"></a><span 
+class="cmtt-12">backup help</span></h4>
+<!--l. 107--><p class="noindent" >This command tells you how to use <span 
+class="cmbx-10">backup</span>, though it&#8217;s a little bit ugly.
+<br 
+class="newline" /><br 
+class="newline" /><span 
+class="cmtt-10">backup help </span><span 
+class="cmsy-10">{</span><span 
+class="cmtt-10">config,status,push,restore,daily,help</span><span 
+class="cmsy-10">}</span>
+    
+</body></html> 
+
+
+

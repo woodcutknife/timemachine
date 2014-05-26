@@ -1,0 +1,113 @@
+\documentclass[a4paper]{article}
+
+\newcommand{\Code}[1]{{\large\tt #1}}
+
+\author{Di Wang}
+
+\begin{document}
+
+\title{linux time machine}
+\maketitle
+
+\tableofcontents
+
+\section{Introduction}
+\textbf{backup} is a file backup tool under Linux, it can be used to backup and restore data locally or remotely. It has those features:
+\begin{itemize}
+    \item Incremental backup.
+    \item Configuration with a tiny file.
+    \item Easy to set excluded files and folders.
+    \item Pretty display of backup status.
+    \item Can limit the number of backup versions.
+    \item Can restore data to a specified version.
+    \item Remote backup support - use SSH.
+\end{itemize}
+
+\section{Installation}
+
+\section{Configuration}
+The config file is defaultly located at {\large\tt /usr/local/etc/backup.conf}, but you can modify this in {\large\tt /usr/local/bin/backup} as you want.
+
+\subsection{{\large\tt BACKUP}}
+To specify globally what files and folders you want to backup. Remember to insert a {\large\tt DELIMITER} between two path.
+
+\subsection{{\large\tt DELIMITER}}
+To split {\large\tt BACKUP}.
+
+\subsection{{\large\tt TARGET}}
+To specify where to place your backups. It could be a path on your remote server.
+
+\subsection{{\large\tt BACKUP\_UPPER\_LIMIT}}
+To configure the upper limit of the number of versions \textbf{backup} should save.
+
+\subsection{{\large\tt SSH}}
+To switch mode from backup locally and backup remotely. \textbf{Remember that if you want to use ssh, it's supposed to connect passwordlessly}.
+
+\subsection{{\large\tt SSH\_USER}}
+To specify the ssh user name.
+
+\subsection{{\large\tt SSH\_HOST}}
+To specify the ssh host name(or ip).
+
+\subsection{{\large\tt DAILY\_BACKUP\_HOUR}}
+To specify the hour of daily backup time.
+
+\subsection{{\large\tt DAILY\_BACKUP\_MINUTE}}
+To specify the minute of daily backup time.
+
+\section{Usage}
+The general command line usage is: \\
+\\
+{\tt
+    backup \{config,status,push,restore,daily,help\}
+}
+
+\subsection{{\large\tt backup config}}
+This command simply tells where the config file locates.
+
+\subsection{{\large\tt backup status}}
+This command is used to check backup status. \\
+\\
+{\tt
+    backup status [file-or-folder]
+} \\
+\\
+If a file or a folder name is specified, \textbf{backup} will check the backup for this file or folder to find all available versions. If not, \textbf{backup} will check status of all the files and folders specified in config file.
+
+\subsection{{\large\tt backup push}}
+This command is used to backup data(push them!). \\
+\\
+{\tt
+    backup push [file-or-folder]
+} \\
+\\
+Just like the {\large\tt status} command, if a file of a folder name is specified, \textbf{backup} will push this file or folder to your backups. If not, \textbf{backup} will push all the files and folders specified in config file.
+
+\subsection{{\large\tt backup restore}}
+This command is used to restore data to a version of the data. \\
+\\
+{\tt
+    backup restore file-or-folder version
+} \\
+\\
+There is an example: \\
+\\
+{\tt
+    backup restore ./test.sh 2014-05-25T15\_13\_18
+}
+
+\subsection{{\large\tt backup daily}}
+This command is used to start or stop daily backup. The backup time is configured in the config file. \\
+\\
+{\tt
+    backup daily \{start,stop\}
+}
+
+\subsection{{\large\tt backup help}}
+This command tells you how to use \textbf{backup}, though it's a little bit ugly. \\
+\\
+{\tt
+    backup help \{config,status,push,restore,daily,help\}
+}
+
+\end{document}
