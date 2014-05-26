@@ -22,8 +22,33 @@
     \item Can restore data to a specified version.
     \item Remote backup support - use SSH.
 \end{itemize}
+And this documentation is generated with the help of {\large\tt htlatex}.
 
 \section{Installation}
+\textbf{backup} use {\large\tt autoconf} to manage configuration and installation. So to install just enter:\\
+\\
+{\tt
+    \$ aclocal \\
+    \$ autoconf \\
+    \$ automake --add-missing \\
+    \$ ./configure \\
+}
+\\
+If there's no error during configuration, then enter:\\
+\\
+{\tt
+    \$ make install \\
+}
+\\
+The \textbf{backup} then has been installed to {\large\tt /usr/local/bin/backup}, and the documentation has been installed to {\large\tt /usr/local/share/doc/backup/readme.html}. \\
+\\
+To uninstall, just enter: \\
+\\
+{\tt
+    \$ make uninstall \\
+}
+\\
+Hint: perhaps you'll need to {\large\tt sudo}.
 
 \section{Configuration}
 The config file is defaultly located at {\large\tt /usr/local/etc/backup.conf}, but you can modify this in {\large\tt /usr/local/bin/backup} as you want.

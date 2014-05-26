@@ -7,7 +7,7 @@
 <meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)"> 
 <!-- html --> 
 <meta name="src" content="readme.tex"> 
-<meta name="date" content="2014-05-26 10:22:00"> 
+<meta name="date" content="2014-05-26 11:34:00"> 
 <link rel="stylesheet" type="text/css" href="readme.css"> 
 </head><body 
 >
@@ -107,99 +107,134 @@ locally or remotely. It has those features:
      <li class="itemize">Can restore data to a specified version.
      </li>
      <li class="itemize">Remote backup support - use SSH.</li></ul>
-<!--l. 26--><p class="noindent" >
+<!--l. 25--><p class="noindent" >And this documentation is generated with the help of <span 
+class="cmtt-12">htlatex</span>.
+<!--l. 27--><p class="noindent" >
    <h3 class="sectionHead"><span class="titlemark">2   </span> <a 
  id="x1-30002"></a>Installation</h3>
-<!--l. 28--><p class="noindent" >
+<!--l. 28--><p class="noindent" ><span 
+class="cmbx-10">backup </span>use <span 
+class="cmtt-12">autoconf </span>to manage configuration and installation. So to install just
+enter:<br 
+class="newline" /><br 
+class="newline" /><span 
+class="cmtt-10">$ aclocal </span><br 
+class="newline" /><span 
+class="cmtt-10">$ autoconf </span><br 
+class="newline" /><span 
+class="cmtt-10">$ automake --add-missing </span><br 
+class="newline" /><span 
+class="cmtt-10">$ ./configure </span><br 
+class="newline" /> <br 
+class="newline" />If there&#8217;s no error during configuration, then enter:<br 
+class="newline" /><br 
+class="newline" /><span 
+class="cmtt-10">$ make install </span><br 
+class="newline" /> <br 
+class="newline" />The <span 
+class="cmbx-10">backup </span>then has been installed to <span 
+class="cmtt-12">/usr/local/bin/backup</span>, and the
+documentation has been installed to <span 
+class="cmtt-12">/usr/local/share/doc/backup/readme.html</span>.
+<br 
+class="newline" /><br 
+class="newline" />To uninstall, just enter: <br 
+class="newline" /><br 
+class="newline" /><span 
+class="cmtt-10">$ make uninstall </span><br 
+class="newline" /> <br 
+class="newline" />Hint: perhaps you&#8217;ll need to <span 
+class="cmtt-12">sudo</span>.
+
+<!--l. 53--><p class="noindent" >
    <h3 class="sectionHead"><span class="titlemark">3   </span> <a 
  id="x1-40003"></a>Configuration</h3>
-<!--l. 29--><p class="noindent" >The config file is defaultly located at <span 
+<!--l. 54--><p class="noindent" >The config file is defaultly located at <span 
 class="cmtt-12">/usr/local/etc/backup.conf</span>, but you
 can modify this in <span 
 class="cmtt-12">/usr/local/bin/backup </span>as you want.
-<!--l. 31--><p class="noindent" >
+<!--l. 56--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">3.1   </span> <a 
  id="x1-50003.1"></a><span 
 class="cmtt-12">BACKUP</span></h4>
-<!--l. 32--><p class="noindent" >To specify globally what files and folders you want to backup. Remember to insert a
+<!--l. 57--><p class="noindent" >To specify globally what files and folders you want to backup. Remember to insert a
 <span 
 class="cmtt-12">DELIMITER </span>between two path.
-<!--l. 34--><p class="noindent" >
+<!--l. 59--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">3.2   </span> <a 
  id="x1-60003.2"></a><span 
 class="cmtt-12">DELIMITER</span></h4>
-<!--l. 35--><p class="noindent" >To split <span 
+<!--l. 60--><p class="noindent" >To split <span 
 class="cmtt-12">BACKUP</span>.
-<!--l. 37--><p class="noindent" >
+<!--l. 62--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">3.3   </span> <a 
  id="x1-70003.3"></a><span 
 class="cmtt-12">TARGET</span></h4>
-<!--l. 38--><p class="noindent" >To specify where to place your backups. It could be a path on your remote
+<!--l. 63--><p class="noindent" >To specify where to place your backups. It could be a path on your remote
 server.
-
-<!--l. 40--><p class="noindent" >
+<!--l. 65--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">3.4   </span> <a 
  id="x1-80003.4"></a><span 
 class="cmtt-12">BACKUP</span><span 
 class="cmtt-12">_UPPER</span><span 
 class="cmtt-12">_LIMIT</span></h4>
-<!--l. 41--><p class="noindent" >To configure the upper limit of the number of versions <span 
+<!--l. 66--><p class="noindent" >To configure the upper limit of the number of versions <span 
 class="cmbx-10">backup </span>should save.
-<!--l. 43--><p class="noindent" >
+<!--l. 68--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">3.5   </span> <a 
  id="x1-90003.5"></a><span 
 class="cmtt-12">SSH</span></h4>
-<!--l. 44--><p class="noindent" >To switch mode from backup locally and backup remotely. <span 
+<!--l. 69--><p class="noindent" >To switch mode from backup locally and backup remotely. <span 
 class="cmbx-10">Remember that if you</span>
 <span 
 class="cmbx-10">want to use ssh, it&#8217;s supposed to connect passwordlessly</span>.
-<!--l. 46--><p class="noindent" >
+<!--l. 71--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">3.6   </span> <a 
  id="x1-100003.6"></a><span 
 class="cmtt-12">SSH</span><span 
 class="cmtt-12">_USER</span></h4>
-<!--l. 47--><p class="noindent" >To specify the ssh user name.
-<!--l. 49--><p class="noindent" >
+<!--l. 72--><p class="noindent" >To specify the ssh user name.
+<!--l. 74--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">3.7   </span> <a 
  id="x1-110003.7"></a><span 
 class="cmtt-12">SSH</span><span 
 class="cmtt-12">_HOST</span></h4>
-<!--l. 50--><p class="noindent" >To specify the ssh host name(or ip).
-<!--l. 52--><p class="noindent" >
+<!--l. 75--><p class="noindent" >To specify the ssh host name(or ip).
+
+<!--l. 77--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">3.8   </span> <a 
  id="x1-120003.8"></a><span 
 class="cmtt-12">DAILY</span><span 
 class="cmtt-12">_BACKUP</span><span 
 class="cmtt-12">_HOUR</span></h4>
-<!--l. 53--><p class="noindent" >To specify the hour of daily backup time.
-<!--l. 55--><p class="noindent" >
+<!--l. 78--><p class="noindent" >To specify the hour of daily backup time.
+<!--l. 80--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">3.9   </span> <a 
  id="x1-130003.9"></a><span 
 class="cmtt-12">DAILY</span><span 
 class="cmtt-12">_BACKUP</span><span 
 class="cmtt-12">_MINUTE</span></h4>
-<!--l. 56--><p class="noindent" >To specify the minute of daily backup time.
-<!--l. 58--><p class="noindent" >
+<!--l. 81--><p class="noindent" >To specify the minute of daily backup time.
+<!--l. 83--><p class="noindent" >
    <h3 class="sectionHead"><span class="titlemark">4   </span> <a 
  id="x1-140004"></a>Usage</h3>
-<!--l. 59--><p class="noindent" >The general command line usage is: <br 
+<!--l. 84--><p class="noindent" >The general command line usage is: <br 
 class="newline" /><br 
 class="newline" /><span 
 class="cmtt-10">backup </span><span 
 class="cmsy-10">{</span><span 
 class="cmtt-10">config,status,push,restore,daily,help</span><span 
 class="cmsy-10">}</span>
-<!--l. 65--><p class="noindent" >
+<!--l. 90--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">4.1   </span> <a 
  id="x1-150004.1"></a><span 
 class="cmtt-12">backup config</span></h4>
-<!--l. 66--><p class="noindent" >This command simply tells where the config file locates.
-
-<!--l. 68--><p class="noindent" >
+<!--l. 91--><p class="noindent" >This command simply tells where the config file locates.
+<!--l. 93--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">4.2   </span> <a 
  id="x1-160004.2"></a><span 
 class="cmtt-12">backup status</span></h4>
-<!--l. 69--><p class="noindent" >This command is used to check backup status. <br 
+<!--l. 94--><p class="noindent" >This command is used to check backup status. <br 
 class="newline" /><br 
 class="newline" /><span 
 class="cmtt-10">backup status [file-or-folder]  </span><br 
@@ -209,11 +244,11 @@ class="cmbx-10">backup </span>will check the backup for this file or
 folder to find all available versions. If not, <span 
 class="cmbx-10">backup </span>will check status of all the files
 and folders specified in config file.
-<!--l. 77--><p class="noindent" >
+<!--l. 102--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">4.3   </span> <a 
  id="x1-170004.3"></a><span 
 class="cmtt-12">backup push</span></h4>
-<!--l. 78--><p class="noindent" >This command is used to backup data(push them!). <br 
+<!--l. 103--><p class="noindent" >This command is used to backup data(push them!). <br 
 class="newline" /><br 
 class="newline" /><span 
 class="cmtt-10">backup push [file-or-folder]  </span><br 
@@ -224,11 +259,12 @@ class="cmbx-10">backup </span>will
 push this file or folder to your backups. If not, <span 
 class="cmbx-10">backup </span>will push all the files and
 folders specified in config file.
-<!--l. 86--><p class="noindent" >
+
+<!--l. 111--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">4.4   </span> <a 
  id="x1-180004.4"></a><span 
 class="cmtt-12">backup restore</span></h4>
-<!--l. 87--><p class="noindent" >This command is used to restore data to a version of the data. <br 
+<!--l. 112--><p class="noindent" >This command is used to restore data to a version of the data. <br 
 class="newline" /><br 
 class="newline" /><span 
 class="cmtt-10">backup restore file-or-folder version  </span><br 
@@ -239,11 +275,11 @@ class="newline" /><span
 class="cmtt-10">backup restore ./test.sh 2014-05-25T15</span><span 
 class="cmtt-10">_13</span><span 
 class="cmtt-10">_18</span>
-<!--l. 99--><p class="noindent" >
+<!--l. 124--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">4.5   </span> <a 
  id="x1-190004.5"></a><span 
 class="cmtt-12">backup daily</span></h4>
-<!--l. 100--><p class="noindent" >This command is used to start or stop daily backup. The backup time is configured
+<!--l. 125--><p class="noindent" >This command is used to start or stop daily backup. The backup time is configured
 in the config file. <br 
 class="newline" /><br 
 class="newline" /><span 
@@ -251,11 +287,11 @@ class="cmtt-10">backup daily </span><span
 class="cmsy-10">{</span><span 
 class="cmtt-10">start,stop</span><span 
 class="cmsy-10">}</span>
-<!--l. 106--><p class="noindent" >
+<!--l. 131--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">4.6   </span> <a 
  id="x1-200004.6"></a><span 
 class="cmtt-12">backup help</span></h4>
-<!--l. 107--><p class="noindent" >This command tells you how to use <span 
+<!--l. 132--><p class="noindent" >This command tells you how to use <span 
 class="cmbx-10">backup</span>, though it&#8217;s a little bit ugly.
 <br 
 class="newline" /><br 
