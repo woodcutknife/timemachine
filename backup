@@ -297,7 +297,7 @@ set_daily() {
         start)
             cron="/tmp/daily-cron-$$.pig" ;
             crontab -l > $cron ;
-            echo "$DAILY_BACKUP_MINUTE $DAILY_BACKUP_HOUR * * * \"`pwd`/$BASENAME\" push" >> $cron ;
+            echo "$DAILY_BACKUP_MINUTE $DAILY_BACKUP_HOUR * * * \"`realpath \"$0\"`\" push" >> $cron ;
             crontab $cron ;
             rm -rf $cron ;
             echo "started." ;;
